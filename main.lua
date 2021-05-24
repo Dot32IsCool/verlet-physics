@@ -1,3 +1,6 @@
+local intro = require('intro') -- required for access to love.setColour (australian translations)
+intro:init('tests')
+
 local function distance(p1, p2)
 	return math.sqrt((p1.x-p2.x)^2 + (p1.y-p2.y)^2)
 end
@@ -69,6 +72,11 @@ function points.update()
 		p.yPre = p.y
 		p.y = p.y + gravity
 
+		if love.mouse.isDown(1) and distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 7 then
+			p.x = love.mouse.getX()
+			p.y = love.mouse.getY()
+		end
+
 		p.x = p.x + xV
 		p.y = p.y + yV
 
@@ -117,12 +125,19 @@ function love.update()
 end
 
 function love.draw()
-	for i=1, #points do
-		love.graphics.circle('fill', points[i].x, points[i].y, 7)
-	end
+	love.graphics.setColour(1,1,1)
 	for i=1, #sticks do
 		local v = sticks[i]
 		love.graphics.line(v.p1.x, v.p1.y, v.p2.x, v.p2.y)
+	end
+
+	for i=1, #points do
+		love.graphics.setColour(1,1,1)
+		if distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 7 then
+			love.graphics.setColour(1,0,0)
+		end
+
+		love.graphics.circle('fill', points[i].x, points[i].y, 7)
 	end
 end
 
