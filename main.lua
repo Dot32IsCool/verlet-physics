@@ -92,7 +92,7 @@ function points.constrain()
 		local xV = p.x - p.xPre
 		local yV = p.y - p.yPre
 
-		if love.mouse.isDown(1) and distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 7 then
+		if inHolding == i then
 			p.x = love.mouse.getX()
 			p.y = love.mouse.getY()
 		end
@@ -158,8 +158,23 @@ function love.draw()
 
 	for i=1, #points do
 		love.graphics.setColour(1,1,1)
+		if inHolding == i then
+			love.graphics.setColour(1,0,0)
+		end
 
 		love.graphics.circle('fill', points[i].x, points[i].y, 7)
 	end
+end
+
+function love.mousepressed(x,y,b)
+	for i=1, #points do
+		if distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 7 then
+			inHolding = i
+		end
+	end
+end
+
+function love.mousereleased(x,y,b)
+	inHolding = false
 end
 
