@@ -33,36 +33,45 @@ table.insert(points, {
 	yPre = 300,
 })
 
+
 local sticks = {} -- a table of constraints to limit point movement
 table.insert(sticks, {
 	p1 = points[1],
 	p2 = points[2],
-	length = distance(points[1], points[2])
+	length = distance(points[1], points[2]),
 })
 table.insert(sticks, {
 	p1 = points[2],
 	p2 = points[3],
-	length = distance(points[1], points[2])
+	length = distance(points[2], points[3]),
 })
 table.insert(sticks, {
 	p1 = points[3],
 	p2 = points[4],
-	length = distance(points[1], points[2])
+	length = distance(points[3], points[4]),
 })
 table.insert(sticks, {
 	p1 = points[4],
 	p2 = points[1],
-	length = distance(points[1], points[2])
+	length = distance(points[4], points[1]),
+})
+table.insert(sticks, {
+	p1 = points[3],
+	p2 = points[1],
+	length = distance(points[4], points[2]),
+	hidden = true,
 })
 table.insert(sticks, {
 	p1 = points[4],
 	p2 = points[2],
-	length = distance(points[1], points[2])
+	length = distance(points[4], points[2]),
+	hidden = true,
 })
 
 function points.update() 
 	--[[ moves the points by the diference from their current 
 	position to their old one, and adds gravity]]
+	love.mouse.setCursor()
 	for i=1, #points do
 		local p = points[i]
 
@@ -78,6 +87,10 @@ function points.update()
 
 		p.x = p.x + xV
 		p.y = p.y + yV
+
+		if inHolding == i or distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 15 then
+			love.mouse.setCursor(intro.cursor)
+		end
 	end
 end
 
@@ -145,30 +158,35 @@ end
 function love.update()
 	points.update()
 	-- for more precision, loop sticks.update and constrain.update a few times (this feels less bouncy)
-	sticks.update()
-	points.constrain()
+	for i=1, 1 do
+		sticks.update()
+		points.constrain()
+	end
 end
 
 function love.draw()
-	love.graphics.setColour(1,1,1)
 	for i=1, #sticks do
-		local v = sticks[i]
-		love.graphics.line(v.p1.x, v.p1.y, v.p2.x, v.p2.y)
-	end
-
-	for i=1, #points do
 		love.graphics.setColour(1,1,1)
-		if inHolding == i then
-			love.graphics.setColour(1,0,0)
+		local v = sticks[i]
+		if v.hidden then
+			love.graphics.setColour(1,1,1, 0.5)
 		end
-
-		love.graphics.circle('fill', points[i].x, points[i].y, 7)
+			love.graphics.line(v.p1.x, v.p1.y, v.p2.x, v.p2.y)
 	end
+
+	-- for i=1, #points do
+	-- 	love.graphics.setColour(1,1,1)
+	-- 	if inHolding == i then
+	-- 		love.graphics.setColour(1,0,0)
+	-- 	end
+
+	-- 	love.graphics.circle('fill', points[i].x, points[i].y, 7)
+	-- end
 end
 
 function love.mousepressed(x,y,b)
 	for i=1, #points do
-		if distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 7 then
+		if distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 15 then
 			inHolding = i
 		end
 	end
