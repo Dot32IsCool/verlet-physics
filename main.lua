@@ -75,7 +75,6 @@ function points.update()
 	for i=1, #points do
 		local p = points[i]
 
-		local bounce = 0.5
 		local gravity = 0.2
 
 		local xV = p.x - p.xPre
@@ -99,7 +98,6 @@ function points.constrain()
 		local p = points[i]
 
 		local bounce = 0.5
-		local gravity = 0.2
 		local friction = 0.7
 
 		local xV = p.x - p.xPre
