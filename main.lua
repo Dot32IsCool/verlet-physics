@@ -1,13 +1,20 @@
 local intro = require('intro') -- required for access to love.setColour (australian translations)
 intro:init('tests')
 
-local inHolding = false -- a boolean for being held by the mouse
+--[[
+	A boolean for if a point is being held by the mouse, 
+	becomes the index to the point when not false.]]
+local inHolding = false
 
 local function distance(p1, p2)
 	return math.sqrt((p1.x-p2.x)^2 + (p1.y-p2.y)^2)
 end
 
-local points = {} -- a table of points to run physics on
+--[[
+	Generating a table of points of which ever object in our world will be made from.
+	Every frame, these points will be updated in the physics loop.
+	Sticks bind points together.]]
+local points = {}
 table.insert(points, {
 	x=400-30,
 	y=300-30,
@@ -38,7 +45,7 @@ local sticks = {} -- a table of constraints to limit point movement
 table.insert(sticks, {
 	p1 = points[1],
 	p2 = points[2],
-	length = distance(points[1], points[2]),
+	length = distance(points[1], points[2]), -- length of sticks are set to the distance between it's two points
 })
 table.insert(sticks, {
 	p1 = points[2],
@@ -87,6 +94,7 @@ function points.update()
 		p.x = p.x + xV
 		p.y = p.y + yV
 
+		-- if selected or being hovered over, make the mouse a "hand"
 		if inHolding == i or distance({x=love.mouse.getX(), y=love.mouse.getY()}, points[i]) < 15 then
 			love.mouse.setCursor(intro.cursor)
 		end
@@ -103,12 +111,13 @@ function points.constrain()
 		local xV = p.x - p.xPre
 		local yV = p.y - p.yPre
 
+		-- if inHolding is equal to the index of this point then set it's position to the mouse cursor
 		if inHolding == i then
 			p.x = love.mouse.getX()
 			p.y = love.mouse.getY()
 		end
 
-		-- limits points within the screen
+		-- limits points within the screen bounds
 		if p.x > love.graphics.getWidth() then
 			p.x = love.graphics.getWidth()
 			p.xPre = p.x + xV * bounce -- bounces by setting previous position to current position + velocity
@@ -136,7 +145,7 @@ function sticks.update()
 	for i=1, #sticks do
 		local s = sticks[i]
 
-		-- calculates the distance a point needs to move in (for the x/y serpately)
+		-- calculates the distance a point needs to move in so that the sticks dont change in length (for the x/y serpately)
 		local xD = s.p2.x - s.p1.x
 		local yD = s.p2.y - s.p1.y
 		local dist = distance(s.p1, s.p2)
@@ -155,10 +164,11 @@ end
 
 function love.update()
 	points.update()
-	-- for more precision, loop sticks.update and constrain.update a few times (this feels less bouncy)
+	-- for more precision, loop sticks.update and constrain.update a few times 
+	-- (this feels less springy and annoyingly re-applies friction/bounce)
 	for i=1, 1 do
 		sticks.update()
-		points.constrain()
+		points.constrain() -- constrain points after fixing the sticks to ensure points dont pass outside of the screen bounds
 	end
 end
 
@@ -172,6 +182,7 @@ function love.draw()
 			love.graphics.line(v.p1.x, v.p1.y, v.p2.x, v.p2.y)
 	end
 
+	--[[ Commented out code for drawing the points]]
 	-- for i=1, #points do
 	-- 	love.graphics.setColour(1,1,1)
 	-- 	if inHolding == i then
